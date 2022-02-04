@@ -1,6 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:users_app/global/global.dart';
-import 'package:users_app/splashScreen/splash_screen.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -15,6 +16,13 @@ class _MainScreenState extends State<MainScreen>
     with SingleTickerProviderStateMixin {
   TabController? _tabController;
   int _selectedIndex = 0;
+
+  final Completer<GoogleMapController> _googleMapController = Completer();
+
+  static const CameraPosition _kGooglePlex = CameraPosition(
+    target: LatLng(37.42796133580664, -122.085749655962),
+    zoom: 14.4746,
+  );
 
   onItemClicked(int index) {
     setState(() {
@@ -31,17 +39,17 @@ class _MainScreenState extends State<MainScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: Column(
+    return Stack(
       children: [
-        Center(child: Text('Main Screen')),
-        ElevatedButton(
-            onPressed: () {
-              fAuth.signOut();
-              Navigator.restorablePushNamed(context, MySplashScreen.routeName);
-            },
-            child: Text('Sign Out')),
+        GoogleMap(
+          mapType: MapType.normal,
+          myLocationEnabled: true,
+          initialCameraPosition: _kGooglePlex,
+          onMapCreated: (GoogleMapController controller) {
+            _googleMapController.complete(controller);
+          },
+        )
       ],
-    ));
+    );
   }
 }
